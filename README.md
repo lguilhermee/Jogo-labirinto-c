@@ -15,3 +15,4 @@ Linguagem C.
 - Gabriel Carvalho
 - Leonardo Zappi
 - Jorge Luiz
+- Vinicius Gomes Nogueira
