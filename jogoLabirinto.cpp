@@ -18,6 +18,7 @@ void movePOS(int x, int y) {
 //Função principal
 int main() {
 
+    //CHAMADA DA FUNCAO e PASSANDO VALROES X E Y;
     movePOS(40,160);
     printf("x");
 
