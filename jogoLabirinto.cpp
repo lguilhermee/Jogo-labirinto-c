@@ -5,6 +5,8 @@
 
 int x, y, antigoX, antigoY; // PRECISAMOS DO ANTIGO X E Y PARA APAGAR NOSSO RASTRO ANTERIOR
 int colunaVertical, colunaHorizontal; // Variaveis que guardam o tamanho total do console
+int nivel = 1;
+//int posXY[coluna][2];
 
 
 // Com esta função é possível pegar o tamanho total das tela. Os valores da Coluna estão nas variaveis globais acima.
@@ -30,7 +32,6 @@ void movePOS(int x, int y) {
 }
 
 
-
 int menuInicial () {
 
     /*MENU DEVE CONTER AS SEGUINTER INFORMAÇÕES
@@ -45,19 +46,13 @@ int menuInicial () {
     return 1;
 }
 
+void geraPosMapa(){
+
+
+}
+
 void mapa() {
     tamanhoTotalDaTela();
-
-    for(int i = 0; i<500; i++) {
-
-        for(int k = 0; k<500; k++) {
-
-            movePOS(rand() % colunaVertical,rand() % colunaHorizontal);
-        }
-    }
-
-
-
 
 }
 
@@ -91,6 +86,7 @@ int main() {
      */
 
     mapa();
+    printf("Coluna Vertcal: %d Coluna Horizontal: %d\n\n", colunaVertical,colunaHorizontal);
 
     system("pause");
 }
