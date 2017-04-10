@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <windows.h>
+#include <time.h>
 
 int x, y, antigoX, antigoY; // PRECISAMOS DO ANTIGO X E Y PARA APAGAR NOSSO RASTRO ANTERIOR
 int colunaVertical, colunaHorizontal; // Variaveis que guardam o tamanho total do console
@@ -44,6 +45,23 @@ int menuInicial () {
     return 1;
 }
 
+void mapa() {
+    tamanhoTotalDaTela();
+
+    for(int i = 0; i<500; i++) {
+
+        for(int k = 0; k<500; k++) {
+
+            movePOS(rand() % colunaVertical,rand() % colunaHorizontal);
+        }
+    }
+
+
+
+
+}
+
+
 
 char menuFinal() {
 
@@ -60,11 +78,6 @@ char menuFinal() {
     return 'a';
 }
 
-void geradorDeMapa() {
-
-    // AINDA DEVE SER PENSADO COMO SER GERADO.
-    // PROVAVELMENTE COM A FUNÇÃO RAND.
-}
 
 
 int main() {
@@ -77,9 +90,8 @@ int main() {
      * GERADO PELA FUNÇÃO tamanhoTotalTabela() ANTERIORMENTE.
      */
 
-    tamanhoTotalDaTela();
-    movePOS((colunaVertical/2)-20,colunaHorizontal/2);
-    
+    mapa();
+
     system("pause");
 }
 
