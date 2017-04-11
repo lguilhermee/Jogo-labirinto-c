@@ -5,8 +5,8 @@
 
 int x, y, antigoX, antigoY; // PRECISAMOS DO ANTIGO X E Y PARA APAGAR NOSSO RASTRO ANTERIOR
 int colunaVertical, colunaHorizontal; // Variaveis que guardam o tamanho total do console
-int nivel = 1;
-//int posXY[coluna][2];
+int nivel = 110;
+int posXY[120][2];
 
 
 // Com esta função é possível pegar o tamanho total das tela. Os valores da Coluna estão nas variaveis globais acima.
@@ -27,8 +27,7 @@ void movePOS(int x, int y) {
     coords.X = x; //Coordenadas X (Horizontal)
     coords.Y = y; //Coordenads Y (Vertical)
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),coords);
-    printf("%c", 254); //Printa um quadrado na determinada posição do console.
-
+    printf("%c", 219); //Printa um quadrado na determinada posição do console.
 }
 
 
@@ -49,13 +48,32 @@ int menuInicial () {
 void geraPosMapa(){
 
 
+
+
 }
 
 void mapa() {
-    tamanhoTotalDaTela();
+
+    for (int i = 0; i < 120; ++i) {
+
+        for (int j = 0; j < 2; ++j) {
+
+            if(j==0) {
+                posXY[i][j] = rand() % 120;
+            }
+            else if(j==1) {
+                posXY[i][j] = rand() % 30;
+            }
+        }
+    }
+
+
+    for (int k = 0; k < 120; ++k) {
+
+        movePOS(posXY[k][0],posXY[k][1]);
+    }
 
 }
-
 
 
 char menuFinal() {
@@ -73,9 +91,13 @@ char menuFinal() {
     return 'a';
 }
 
-
-
 int main() {
+
+    tamanhoTotalDaTela();
+    //printf("Coluna Vertcal: %d Coluna Horizontal: %d\n\n", colunaVertical,colunaHorizontal);
+    mapa();
+
+
 
     /*EXEMPLO DE COORDENADAS
      * O SEGUINTE CÓDIGO ABAIXO COLETA O TAMANHO DO CONSOLE ATRAVÉS
@@ -85,8 +107,8 @@ int main() {
      * GERADO PELA FUNÇÃO tamanhoTotalTabela() ANTERIORMENTE.
      */
 
-    mapa();
-    printf("Coluna Vertcal: %d Coluna Horizontal: %d\n\n", colunaVertical,colunaHorizontal);
+    //mapa();
+
 
     system("pause");
 }
