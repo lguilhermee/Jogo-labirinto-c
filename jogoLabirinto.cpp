@@ -1,20 +1,32 @@
+// Bibliotecas
 #include <stdlib.h>
 #include <stdio.h>
 #include <windows.h>
-#include <time.h>
 #include <conio.h>
+
+// DEFINIÇÕES
+#define KEY_UP 72
+#define KEY_DOWN 80
+#define KEY_LEFT 75
+#define KEY_RIGHT 77
+
+// VARIAVEIS GLOBAIS
 
 int x, y, antigoX, antigoY; // PRECISAMOS DO ANTIGO X E Y PARA APAGAR NOSSO RASTRO ANTERIOR
 int colunaVertical, colunaHorizontal; // Variaveis que guardam o tamanho total do console
 int nivel = 110;
 int posXY[120][2];
 
-// Funções declaradas lá embaixo.
-void geraMapa();
-void moveChar();
+
+// DECLARAÇÕES DE FUNÇÕES
+
+void geraMapa(); // Gera mapa aleatorio
+void moveChar(); // Move-se Pelo mapa
+void tamanhoTotalDaTela(); // Captura o tamanho total da tela. (Geralmente 120x30)
+void movePOS(int x, int y, int tipo); // Utiliza X e Y para se navegar
 
 
-// Com esta função é possível pegar o tamanho total das tela. Os valores da Coluna estão nas variaveis globais acima.
+
 void tamanhoTotalDaTela(){
 
 CONSOLE_SCREEN_BUFFER_INFO bufferConsole;
@@ -26,7 +38,7 @@ colunaVertical = bufferConsole.srWindow.Bottom - bufferConsole.srWindow.Top + 1;
 
 
 // Com esta função nós conseguimos nos mover pelo console utilizando X e Y
-void movePOS(int x, int y, int eraseOrPrint) {
+void movePOS(int x, int y, int tipo) {
 
 
     COORD coords; // Classe COORD (Windows.h)
@@ -37,12 +49,14 @@ void movePOS(int x, int y, int eraseOrPrint) {
     // 1 - Adicionar
     // 0 - Apagar
 
-    if(eraseOrPrint == 0) {
-        printf("%c", ' ');
+    if(tipo == 0) {
+        printf("%c", ' '); //Remove espaço em branco
     }
-    else if(eraseOrPrint == 1) {
-        printf("%c", 219); //Printa um quadrado na determinada posição do console.
+    else if(tipo == 1) {
+        printf("%c", 248); // Move o carrinho
     }
+    else
+        printf("%c", 219); //  Paredes
 
 }
 
@@ -73,7 +87,6 @@ void menuInicial () {
             antigoX = 0;
             antigoY = 0;
 
-
             system("cls");
             geraMapa();
             moveChar();
@@ -98,55 +111,55 @@ void menuInicial () {
 
 void moveChar() {
 
-    int numMovimento = getch();
+    int numMovimento = 0;
 
-    while (numMovimento != '22472') {
 
-        fseek(stdin,0,SEEK_END);
+    while (true) {
 
-    switch(numMovimento){
+        switch (numMovimento = getch()) {
 
-        case 22472:
-            movePOS(x,y-1,1); //Move um para cima
+            case KEY_UP:
+                movePOS(x, y - 1, 1); //Move um para cima
 
-            antigoX = x;
-            antigoY = y;
-            movePOS(antigoX,antigoY,0); // Limpa localização anterior
-            y -= 1;
+                antigoX = x;
+                antigoY = y;
+                movePOS(antigoX, antigoY, 0); // Limpa localização anterior
+                y -= 1;
 
-            break;
-        case 22480:
-            movePOS(x,y+1,1); // Move um para baixo
+                break;
+            case KEY_DOWN:
+                movePOS(x, y + 1, 1); // Move um para baixo
 
-            antigoX = x;
-            antigoY = y;
-            movePOS(antigoX,antigoY,0); // Limpa localização anterior
-            y+=1;
+                antigoX = x;
+                antigoY = y;
+                movePOS(antigoX, antigoY, 0); // Limpa localização anterior
+                y += 1;
 
-            break;
-        case 22475:
-            movePOS(x-1,y,1); // Move um para esquerda
+                break;
+            case KEY_LEFT:
+                movePOS(x - 1, y, 1); // Move um para esquerda
 
-            antigoX = x;
-            antigoY = y;
-            movePOS(antigoX,antigoY,0); // Limpa localização anterior
-            x-=1;
+                antigoX = x;
+                antigoY = y;
+                movePOS(antigoX, antigoY, 0); // Limpa localização anterior
+                x -= 1;
 
-            break;
-        case 22477:
-            movePOS(x+1,y,1); // Move um para direita
+                break;
+            case KEY_RIGHT:
+                movePOS(x + 1, y, 1); // Move um para direita
 
-            antigoX = x;
-            antigoY = y;
-            movePOS(antigoX,antigoY,0); // Limpa localização anterior
-            x+=1;
+                antigoX = x;
+                antigoY = y;
+                movePOS(antigoX, antigoY, 0); // Limpa localização anterior
+                x += 1;
 
-            break;
-        default:
-            break;
-    }
+                break;
+            default:
+                break;
+        }
     }
 }
+
 
 
 void geraMapa() {
@@ -167,7 +180,7 @@ void geraMapa() {
 
     for (int k = 0; k < 120; ++k) {
 
-        movePOS(posXY[k][0],posXY[k][1],1);
+        movePOS(posXY[k][0],posXY[k][1],3);
     }
 
 }
