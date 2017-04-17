@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <windows.h>
 #include <conio.h>
+#include <locale.h>
+
+
+//setlocale(LC_ALL, "Portuguese"); No idea why is not working.
 
 // DEFINIÇÕES
 #define KEY_UP 72
@@ -13,9 +17,9 @@
 // VARIAVEIS GLOBAIS
 
 int x, y, antigoX, antigoY; // PRECISAMOS DO ANTIGO X E Y PARA APAGAR NOSSO RASTRO ANTERIOR
-int colunaVertical, colunaHorizontal; // Variaveis que guardam o tamanho total do console
+int colunaVertical, colunaHorizontal; // Geralmente 120x30
 int nivel = 110;
-int posXY[120][2];
+int posXY[120][2]; // Guarda o total de objetos na tela (Paredes)
 
 
 // DECLARAÇÕES DE FUNÇÕES
@@ -24,6 +28,8 @@ void geraMapa(); // Gera mapa aleatorio
 void moveChar(); // Move-se Pelo mapa
 void tamanhoTotalDaTela(); // Captura o tamanho total da tela. (Geralmente 120x30)
 void movePOS(int x, int y, int tipo); // Utiliza X e Y para se navegar
+void menuInicial(); //Menu Inicial
+int menuFinal(); // Menu Final
 
 
 
@@ -63,19 +69,19 @@ void movePOS(int x, int y, int tipo) {
 
 void menuInicial () {
 
-
     int opcaoSelecionada = 0;
-    printf(" _           _     _      _       _        \n"
-                   "| |         | |   (_)    (_)     | |       \n"
-                   "| |     __ _| |__  _ _ __ _ _ __ | |_ ___  \n"
-                   "| |    / _` | '_ \| | '__| | '_ \| __/ _ \ \n"
-                   "| |___| (_| | |_) | | |  | | | | | || (_) |\n"
-                   "|______\__,_|_.__/|_|_|  |_|_| |_|\__\___/ \n");
+    printf("\n\n\n\t\t\t\t\t _           _     _      _       _        \n"
+                   "\t\t\t\t\t| |         | |   (_)    (_)     | |       \n"
+                   "\t\t\t\t\t| |     __ _| |__  _ _ __ _ _ __ | |_ ___  \n"
+                   "\t\t\t\t\t| |    / _` | '_ \| | '__| | '_ \| __/ _ \ \n"
+                   "\t\t\t\t\t| |___| (_| | |_) | | |  | | | | | || (_) |\n"
+                   "\t\t\t\t\t|______\__,_|_.__/|_|_|  |_|_| |_|\__\___/ \n\n\n");
 
 
-    printf("1 - Iniciar jogo\n");
-    printf("2 - Exibir recoords\n");
-    printf("3 - Sair\n");
+    printf("\t\t\t\t\t MENU DE OPCOES\n");
+    printf("\t\t\t\t\t1 - Iniciar jogo\n");
+    printf("\t\t\t\t\t2 - Exibir recoords\n");
+    printf("\t\t\t\t\t3 - Sair\n");
 
     printf("\nDigite uma opção: ");
     scanf("%d", &opcaoSelecionada);
@@ -98,14 +104,33 @@ void menuInicial () {
             break;
         }
         case 3: {
+            system("exit");
             break;
 
         }
         default:{
+            system("cls");
+            menuInicial();
             break;
         }
     }
 
+}
+
+bool existeNoMapa(int testeX, int testeY) {
+
+    for (int i = 0; i < 120; ++i) {
+
+        if(testeX == posXY[i][0])
+            for (int j = 0; j < 120; ++j) {
+                if(testeY == posXY[i][1]){
+                    system("cls");
+                    menuFinal();
+                    break;
+                }
+            }
+    }
+   
 }
 
 
@@ -113,8 +138,10 @@ void moveChar() {
 
     int numMovimento = 0;
 
+    existeNoMapa(x,y);
 
     while (true) {
+
 
         switch (numMovimento = getch()) {
 
@@ -123,6 +150,7 @@ void moveChar() {
 
                 antigoX = x;
                 antigoY = y;
+                existeNoMapa(antigoX,antigoY);
                 movePOS(antigoX, antigoY, 0); // Limpa localização anterior
                 y -= 1;
 
@@ -132,6 +160,7 @@ void moveChar() {
 
                 antigoX = x;
                 antigoY = y;
+                existeNoMapa(antigoX,antigoY);
                 movePOS(antigoX, antigoY, 0); // Limpa localização anterior
                 y += 1;
 
@@ -141,6 +170,7 @@ void moveChar() {
 
                 antigoX = x;
                 antigoY = y;
+                existeNoMapa(antigoX,antigoY);
                 movePOS(antigoX, antigoY, 0); // Limpa localização anterior
                 x -= 1;
 
@@ -150,6 +180,7 @@ void moveChar() {
 
                 antigoX = x;
                 antigoY = y;
+                existeNoMapa(antigoX,antigoY);
                 movePOS(antigoX, antigoY, 0); // Limpa localização anterior
                 x += 1;
 
@@ -185,18 +216,44 @@ void geraMapa() {
 
 }
 
-char menuFinal() {
+int menuFinal() {
 
-    /*MENU FINAL DEVE CONTER AS SEGUINTES INFORMAÇÕES
-     * - IMAGEM DE GAME OVER EM ASCII
-     * - JOGADOR NOVAMENTE
-     * - VOLTAR AO MENU PRINCIPAL
-     * - SAIR DO JOGO
-     * */
+    int opcaoSelecionada;
 
-    // O MENU DEVE RETORNAR UM CHAR OU UM INTEIRO
+    printf("  ______        ______  _______     _____  _    _ _______ ______  \n"
+                   " / _____)  /\\  |  ___ \\(_______)   / ___ \\| |  | (_______|_____ \\ \n"
+                   "| /  ___  /  \\ | | _ | |_____     | |   | | |  | |_____   _____) )\n"
+                   "| | (___)/ /\\ \\| || || |  ___)    | |   | |\\ \\/ /|  ___) (_____ ( \n"
+                   "| \\____/| |__| | || || | |_____   | |___| | \\  / | |_____      | |\n"
+                   " \\_____/|______|_||_||_|_______)   \\_____/   \\/  |_______)     |_|\n"
+                   "                                                                  ");
 
-    return 'a';
+    printf("MENU DE OPÇÕES");
+    printf("1 - Jogar novamente\n");
+    printf("2 - Recordes\n");
+    printf("3 - Sair\n");
+
+    scanf("%d", &opcaoSelecionada);
+
+    switch (opcaoSelecionada){
+        case 1:
+            // Chama função inicia o jogo
+            break;
+        case 2:
+            // Chama função de recodes
+            break;
+        case 3:
+            // Chama função de sair
+            break;
+        default:
+            printf("\nVocê digitou incorretamente");
+    }
+
+}
+
+void Recorde() {
+
+
 }
 
 int main() {
