@@ -151,7 +151,14 @@ void menuInicial () {
 
 }
 
-bool existeNoMapa(int testeX, int testeY) {
+int existeNoMapa(int testeX, int testeY) {
+
+    if(testeX == posXY[50][0] && testeY == posXY [50][1]) {
+        system("cls");
+        printf("VOCE GANHOU MODA FOCKERRRRRRR");
+        return 1;
+    }
+
 
     for (int i = 0; i < 120; ++i) {
 
@@ -160,10 +167,12 @@ bool existeNoMapa(int testeX, int testeY) {
                 if(testeY == posXY[i][1]){
                     system("cls");
                     menuFinal();
-                    break;
+                    return 0;
                 }
             }
     }
+
+    return 2;
    
 }
 
@@ -172,9 +181,9 @@ void moveChar() {
 
     int numMovimento = 0;
 
-    existeNoMapa(x,y);
 
-    while (true) {
+
+    while (existeNoMapa(x,y) == 2) {
 
         switch (numMovimento = getch()) {
 
@@ -235,7 +244,7 @@ void geraMapa() {
                 posXY[i][j] = rand() % 120;
             }
             else if(j==1) {
-                posXY[i][j] = rand() %  30;
+                posXY[i][j] = rand() %  20;
             }
         }
     }
@@ -284,7 +293,6 @@ void menuFinal() {
             exit(0);
             break;
         default:
-            printf("\nVocê digitou incorretamente");
             break;
     }
 
