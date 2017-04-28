@@ -4,15 +4,14 @@
 #include <windows.h>
 #include <conio.h>
 #include <locale.h>
+#include <time.h>
 
-
-//setlocale(LC_ALL, "Portuguese"); No idea why is not working.
 
 // DEFINIÇÕES
-#define KEY_UP 72
-#define KEY_DOWN 80
-#define KEY_LEFT 75
-#define KEY_RIGHT 77
+#define TECLA_CIMA 72
+#define TECLA_BAIXO 80
+#define TECLA_ESQUERDA 75
+#define TECLA_DIREITA 77
 
 // VARIAVEIS GLOBAIS
 
@@ -29,7 +28,7 @@ void moveChar(); // Move-se Pelo mapa
 void tamanhoTotalDaTela(); // Captura o tamanho total da tela. (Geralmente 120x30)
 void movePOS(int x, int y, int tipo); // Utiliza X e Y para se navegar
 void menuInicial(); //Menu Inicial
-int menuFinal(); // Menu Final
+void menuFinal(); // Menu Final
 
 
 
@@ -43,68 +42,103 @@ colunaVertical = bufferConsole.srWindow.Bottom - bufferConsole.srWindow.Top + 1;
 }
 
 
-// Com esta função nós conseguimos nos mover pelo console utilizando X e Y
-void movePOS(int x, int y, int tipo) {
+void mudaCor(int nomeCor){
 
+    HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+    switch (nomeCor){
+        case 1:
+            SetConsoleTextAttribute(console, FOREGROUND_GREEN);
+            break;
+        case 2:
+            SetConsoleTextAttribute(console, FOREGROUND_BLUE);
+            break;
+        case 3:
+            SetConsoleTextAttribute(console, FOREGROUND_RED);
+            break;
+        case 4:
+            SetConsoleTextAttribute(console, FOREGROUND_INTENSITY);
+        default:
+            break;
+    }
+
+}
+
+
+// Com esta função nós conseguimos nos mover pelo console utilizando X e Y
+
+void movePOS(int x, int y, int tipo) {
 
     COORD coords; // Classe COORD (Windows.h)
     coords.X = x; //Coordenadas X (Horizontal)
     coords.Y = y; //Coordenads Y (Vertical)
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),coords);
 
-    // 1 - Adicionar
-    // 0 - Apagar
+    // 0 - Remove espaços em branco
+    // 1 - Move o carrinho
+    // 2 - Paredes
 
     if(tipo == 0) {
         printf("%c", ' '); //Remove espaço em branco
     }
     else if(tipo == 1) {
-        printf("%c", 248); // Move o carrinho
+        mudaCor(1);
+        printf("%c", 254); // Move o carrinho
+        mudaCor(4);
+    }
+        else if(tipo == 2) {
+        mudaCor(3);
+        printf("%c", 169); // Objetivo no mapa
+        mudaCor(4);
     }
     else
         printf("%c", 219); //  Paredes
 
 }
 
+void IniciaNovoJogo() {
+    x = 0;
+    y = 0;
+    antigoX = 0;
+    antigoY = 0;
+
+    system("cls");
+    geraMapa();
+    moveChar();
+    movePOS(0,0,0); //Voltando para posição inicial
+    system("pause");
+}
+
 
 void menuInicial () {
 
     int opcaoSelecionada = 0;
+    mudaCor(1);
     printf("\n\n\n\t\t\t\t\t _           _     _      _       _        \n"
                    "\t\t\t\t\t| |         | |   (_)    (_)     | |       \n"
                    "\t\t\t\t\t| |     __ _| |__  _ _ __ _ _ __ | |_ ___  \n"
                    "\t\t\t\t\t| |    / _` | '_ \| | '__| | '_ \| __/ _ \ \n"
                    "\t\t\t\t\t| |___| (_| | |_) | | |  | | | | | || (_) |\n"
-                   "\t\t\t\t\t|______\__,_|_.__/|_|_|  |_|_| |_|\__\___/ \n\n\n");
+                   "\t\t\t\t\t|______\__,_|_.__/|_|_|  |_|_| |_|\__\___/ \n\n\n\n\n");
 
 
-    printf("\t\t\t\t\t MENU DE OPCOES\n");
-    printf("\t\t\t\t\t1 - Iniciar jogo\n");
-    printf("\t\t\t\t\t2 - Exibir recoords\n");
-    printf("\t\t\t\t\t3 - Sair\n");
+    mudaCor(4);
+    printf("\t\t\t\t\t\t MENU DE OPCOES\n\n");
+    printf("\t\t\t\t\t\t1 - Iniciar jogo\n");
+    printf("\t\t\t\t\t\t2 - Exibir recoords\n");
+    printf("\t\t\t\t\t\t3 - Sair\n");
+    movePOS(119,29,0);
+    printf("DESENVOLVEDORES: Davi. L, Emerson, Gabriel. C, Jorge. L, Juan. P, Lucas. C, Lucas. G, Lucas. R, Mariana. F, Vinicius. G");
 
-    printf("\nDigite uma opção: ");
-    scanf("%d", &opcaoSelecionada);
-
-    switch(opcaoSelecionada){
-        case 1: {
-            x = 0;
-            y = 0;
-            antigoX = 0;
-            antigoY = 0;
-
-            system("cls");
-            geraMapa();
-            moveChar();
-            movePOS(0,0,0); //Voltando para posição inicial
-            system("pause");
+    switch(opcaoSelecionada  = getch()){
+        case 49: {
+            IniciaNovoJogo();
             break;
         }
-        case 2: {
+        case 50: {
             break;
         }
-        case 3: {
-            system("exit");
+        case 51: {
+            exit(0);
             break;
 
         }
@@ -142,10 +176,9 @@ void moveChar() {
 
     while (true) {
 
-
         switch (numMovimento = getch()) {
 
-            case KEY_UP:
+            case TECLA_CIMA:
                 movePOS(x, y - 1, 1); //Move um para cima
 
                 antigoX = x;
@@ -155,7 +188,7 @@ void moveChar() {
                 y -= 1;
 
                 break;
-            case KEY_DOWN:
+            case TECLA_BAIXO:
                 movePOS(x, y + 1, 1); // Move um para baixo
 
                 antigoX = x;
@@ -165,7 +198,7 @@ void moveChar() {
                 y += 1;
 
                 break;
-            case KEY_LEFT:
+            case TECLA_ESQUERDA:
                 movePOS(x - 1, y, 1); // Move um para esquerda
 
                 antigoX = x;
@@ -175,7 +208,7 @@ void moveChar() {
                 x -= 1;
 
                 break;
-            case KEY_RIGHT:
+            case TECLA_DIREITA:
                 movePOS(x + 1, y, 1); // Move um para direita
 
                 antigoX = x;
@@ -192,7 +225,6 @@ void moveChar() {
 }
 
 
-
 void geraMapa() {
 
     for (int i = 0; i < 120; ++i) {
@@ -203,7 +235,7 @@ void geraMapa() {
                 posXY[i][j] = rand() % 120;
             }
             else if(j==1) {
-                posXY[i][j] = rand() % 30;
+                posXY[i][j] = rand() %  30;
             }
         }
     }
@@ -211,42 +243,49 @@ void geraMapa() {
 
     for (int k = 0; k < 120; ++k) {
 
-        movePOS(posXY[k][0],posXY[k][1],3);
+        if(k==50)
+            movePOS(posXY[k][0],posXY[k][1],2);
+        else
+            movePOS(posXY[k][0],posXY[k][1],3);
+
     }
 
 }
 
-int menuFinal() {
+void menuFinal() {
 
     int opcaoSelecionada;
 
-    printf("  ______        ______  _______     _____  _    _ _______ ______  \n"
-                   " / _____)  /\\  |  ___ \\(_______)   / ___ \\| |  | (_______|_____ \\ \n"
-                   "| /  ___  /  \\ | | _ | |_____     | |   | | |  | |_____   _____) )\n"
-                   "| | (___)/ /\\ \\| || || |  ___)    | |   | |\\ \\/ /|  ___) (_____ ( \n"
-                   "| \\____/| |__| | || || | |_____   | |___| | \\  / | |_____      | |\n"
-                   " \\_____/|______|_||_||_|_______)   \\_____/   \\/  |_______)     |_|\n"
-                   "                                                                  ");
+    movePOS(0,3,0);
+    mudaCor(3);
+    printf("\t\t\t  ______        ______  _______     _____  _    _ _______ ______  \n"
+                   "\t\t\t / _____)  /\\  |  ___ \\(_______)   / ___ \\| |  | (_______|_____ \\ \n"
+                   "\t\t\t| /  ___  /  \\ | | _ | |_____     | |   | | |  | |_____   _____) )\n"
+                   "\t\t\t| | (___)/ /\\ \\| || || |  ___)    | |   | |\\ \\/ /|  ___) (_____ ( \n"
+                   "\t\t\t| \\____/| |__| | || || | |_____   | |___| | \\  / | |_____      | |\n"
+                   "\t\t\t \\_____/|______|_||_||_|_______)   \\_____/   \\/  |_______)     |_|\n\n\n");
 
-    printf("MENU DE OPÇÕES");
-    printf("1 - Jogar novamente\n");
-    printf("2 - Recordes\n");
-    printf("3 - Sair\n");
 
-    scanf("%d", &opcaoSelecionada);
+    mudaCor(4);
+    printf("\t\t\t\t\t   MENU DE OPCOES\n\n");
+    printf("\t\t\t\t\t1 - Jogar novamente\n");
+    printf("\t\t\t\t\t2 - Recordes\n");
+    printf("\t\t\t\t\t3 - Sair\n");
 
-    switch (opcaoSelecionada){
-        case 1:
-            // Chama função inicia o jogo
+
+    switch (opcaoSelecionada = getch()){
+        case 49:
+            IniciaNovoJogo();
             break;
-        case 2:
+        case 50:
             // Chama função de recodes
             break;
-        case 3:
-            // Chama função de sair
+        case 51:
+            exit(0);
             break;
         default:
             printf("\nVocê digitou incorretamente");
+            break;
     }
 
 }
@@ -258,7 +297,8 @@ void Recorde() {
 
 int main() {
 
-    tamanhoTotalDaTela();
+    srand(time(NULL));
+    //tamanhoTotalDaTela();
     menuInicial();
 
     system("pause");
