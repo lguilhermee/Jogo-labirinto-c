@@ -15,12 +15,12 @@
 
 // VARIAVEIS GLOBAIS
 
-int x, y, antigoX, antigoY; // PRECISAMOS DO ANTIGO X E Y PARA APAGAR NOSSO RASTRO ANTERIOR
+int x = 2, y = 2, antigoX, antigoY; // PRECISAMOS DO ANTIGO X E Y PARA APAGAR NOSSO RASTRO ANTERIOR
 int colunaVertical, colunaHorizontal; // Geralmente 120x30
 int nivel = 120;
 int **posXY;
 int objetivoRandom = rand() % nivel;
-
+int pontuacao = 0;
 
 // DECLARAÇÕES DE FUNÇÕES
 
@@ -98,14 +98,14 @@ void movePOS(int x, int y, int tipo) {
 
 void IniciaNovoJogo() {
     x = 0;
-    y = 0;
+    y = 1;
     antigoX = 0;
     antigoY = 0;
 
     system("cls");
     geraMapa();
     moveChar();
-    movePOS(0,0,0); //Voltando para posição inicial
+    movePOS(x,y,1); //Voltando para posição inicial
     system("pause");
 }
 
@@ -140,8 +140,6 @@ void menuInicial () {
         }
         case 51: {
             exit(0);
-            break;
-
         }
         default:{
             system("cls");
@@ -155,9 +153,9 @@ void menuInicial () {
 int existeNoMapa(int testeX, int testeY) {
 
     if(testeX == posXY[objetivoRandom][0] && testeY == posXY[objetivoRandom][1]) {
-        system("cls");
-        printf("You won");
-        system("pause");
+        pontuacao++;
+        nivel+=50;
+        IniciaNovoJogo();
         return 1;
     }
 
@@ -181,7 +179,6 @@ int existeNoMapa(int testeX, int testeY) {
 void moveChar() {
 
     int numMovimento = 0;
-
 
     while (existeNoMapa(x,y) == 2) {
 
@@ -236,7 +233,25 @@ void moveChar() {
 
 void geraMapa() {
 
+    if(nivel == 120)
     posXY = (int**) malloc(nivel*sizeof(int));
+    else
+    posXY = (int**) realloc(posXY,nivel*sizeof(int));
+
+
+    for (int l = 0; l < 120; ++l) {
+
+        movePOS(l,26,3);
+    }
+
+    for (int l = 0; l < 120; ++l) {
+
+        movePOS(l,0,3);
+    }
+
+    movePOS(50,27,0);
+    printf("Pontuacao: %d", pontuacao);
+    objetivoRandom = rand() % nivel;
 
     for (int i = 0; i < nivel; ++i) {
         posXY[i] = (int*) malloc(1*sizeof(int)); // Criando uma nova matriz
@@ -301,12 +316,12 @@ void menuFinal() {
 
 void Recorde() {
 
+    // Versão Alpha.
 
 }
 
 int main() {
     srand(time(NULL));
-
     //tamanhoTotalDaTela();
     menuInicial();
 
