@@ -17,8 +17,9 @@
 
 int x, y, antigoX, antigoY; // PRECISAMOS DO ANTIGO X E Y PARA APAGAR NOSSO RASTRO ANTERIOR
 int colunaVertical, colunaHorizontal; // Geralmente 120x30
-int nivel = 110;
-int posXY[120][2]; // Guarda o total de objetos na tela (Paredes)
+int nivel = 120;
+int **posXY;
+int objetivoRandom = rand() % nivel;
 
 
 // DECLARAÇÕES DE FUNÇÕES
@@ -153,17 +154,17 @@ void menuInicial () {
 
 int existeNoMapa(int testeX, int testeY) {
 
-    if(testeX == posXY[50][0] && testeY == posXY [50][1]) {
+    if(testeX == posXY[objetivoRandom][0] && testeY == posXY[objetivoRandom][1]) {
         system("cls");
-        printf("VOCE GANHOU MODA FOCKERRRRRRR");
+        printf("You won");
+        system("pause");
         return 1;
     }
 
-
-    for (int i = 0; i < 120; ++i) {
+    for (int i = 0; i < nivel; ++i) {
 
         if(testeX == posXY[i][0])
-            for (int j = 0; j < 120; ++j) {
+            for (int j = 0; j < nivel; ++j) {
                 if(testeY == posXY[i][1]){
                     system("cls");
                     menuFinal();
@@ -180,7 +181,6 @@ int existeNoMapa(int testeX, int testeY) {
 void moveChar() {
 
     int numMovimento = 0;
-
 
 
     while (existeNoMapa(x,y) == 2) {
@@ -236,27 +236,28 @@ void moveChar() {
 
 void geraMapa() {
 
-    for (int i = 0; i < 120; ++i) {
+    posXY = (int**) malloc(nivel*sizeof(int));
+
+    for (int i = 0; i < nivel; ++i) {
+        posXY[i] = (int*) malloc(1*sizeof(int)); // Criando uma nova matriz
 
         for (int j = 0; j < 2; ++j) {
 
             if(j==0) {
-                posXY[i][j] = rand() % 120;
+                posXY[i][j] = rand() % nivel;
             }
             else if(j==1) {
-                posXY[i][j] = rand() %  20;
+                posXY[i][j] = rand() %  25;
             }
         }
     }
 
+    for (int k = 0; k < nivel; ++k) {
 
-    for (int k = 0; k < 120; ++k) {
-
-        if(k==50)
+        if(k== objetivoRandom)
             movePOS(posXY[k][0],posXY[k][1],2);
         else
             movePOS(posXY[k][0],posXY[k][1],3);
-
     }
 
 }
@@ -304,8 +305,8 @@ void Recorde() {
 }
 
 int main() {
-
     srand(time(NULL));
+
     //tamanhoTotalDaTela();
     menuInicial();
 
