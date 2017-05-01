@@ -3,24 +3,26 @@
 #include <stdio.h>
 #include <windows.h>
 #include <conio.h>
-#include <locale.h>
 #include <time.h>
+#include <string.h>
 
 
 // DEFINIÇÕES
-#define TECLA_CIMA 72
-#define TECLA_BAIXO 80
-#define TECLA_ESQUERDA 75
-#define TECLA_DIREITA 77
+#define TECLA_CIMA 72 // Character para mover para cima.
+#define TECLA_BAIXO 80 //Character para mover para baixo.
+#define TECLA_ESQUERDA 75 //Character para mover para esquerda
+#define TECLA_DIREITA 77 // Character para mover para direita
 
 // VARIAVEIS GLOBAIS
 
-int x = 2, y = 2, antigoX, antigoY; // PRECISAMOS DO ANTIGO X E Y PARA APAGAR NOSSO RASTRO ANTERIOR
+int x,y, antigoX, antigoY; // PRECISAMOS DO ANTIGO X E Y PARA APAGAR NOSSO RASTRO ANTERIOR
 int colunaVertical, colunaHorizontal; // Geralmente 120x30
-int nivel = 120;
-int **posXY;
-int objetivoRandom = rand() % nivel;
-int pontuacao = 0;
+int nivel = 0; // Nível inicial que é incrementado.
+int **posXY = (int**) malloc(120*sizeof(int));
+int objetivoRandom; // Aqui nós geramos valores aleatórios para o objetivo na tela.
+int pontuacao = 0; // Pontuação do jogador
+char nomeJogador[50];
+FILE *f;
 
 // DECLARAÇÕES DE FUNÇÕES
 
@@ -30,7 +32,9 @@ void tamanhoTotalDaTela(); // Captura o tamanho total da tela. (Geralmente 120x3
 void movePOS(int x, int y, int tipo); // Utiliza X e Y para se navegar
 void menuInicial(); //Menu Inicial
 void menuFinal(); // Menu Final
-
+void Recorde();
+void LerRecordes();
+void DesenharLogo();
 
 
 void tamanhoTotalDaTela(){
@@ -45,27 +49,25 @@ colunaVertical = bufferConsole.srWindow.Bottom - bufferConsole.srWindow.Top + 1;
 
 void mudaCor(int nomeCor){
 
-    HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+    HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE); // Criamos uma variavel para manusear o console
     switch (nomeCor){
         case 1:
-            SetConsoleTextAttribute(console, FOREGROUND_GREEN);
+            SetConsoleTextAttribute(console, FOREGROUND_GREEN); // Verde
             break;
         case 2:
-            SetConsoleTextAttribute(console, FOREGROUND_BLUE);
+            SetConsoleTextAttribute(console, FOREGROUND_BLUE); // Azul
             break;
         case 3:
-            SetConsoleTextAttribute(console, FOREGROUND_RED);
+            SetConsoleTextAttribute(console, FOREGROUND_RED); // Vermelho
             break;
         case 4:
-            SetConsoleTextAttribute(console, FOREGROUND_INTENSITY);
+            SetConsoleTextAttribute(console, FOREGROUND_INTENSITY); // Padrão
         default:
             break;
     }
 
 }
 
-
-// Com esta função nós conseguimos nos mover pelo console utilizando X e Y
 
 void movePOS(int x, int y, int tipo) {
 
@@ -76,7 +78,8 @@ void movePOS(int x, int y, int tipo) {
 
     // 0 - Remove espaços em branco
     // 1 - Move o carrinho
-    // 2 - Paredes
+    // 2 - Objetivo no mapa
+    // 3 ou outro valor - Paredes
 
     if(tipo == 0) {
         printf("%c", ' '); //Remove espaço em branco
@@ -97,32 +100,24 @@ void movePOS(int x, int y, int tipo) {
 }
 
 void IniciaNovoJogo() {
+
+    // Iniciamos os valores X e Y iniciais
     x = 0;
     y = 1;
     antigoX = 0;
     antigoY = 0;
 
-    system("cls");
-    geraMapa();
-    moveChar();
+    system("cls"); // Limpa tela
+    geraMapa();  //Gera o Mapa
+    moveChar(); //Se move pelo mapa
     movePOS(x,y,1); //Voltando para posição inicial
-    system("pause");
 }
 
 
 void menuInicial () {
 
     int opcaoSelecionada = 0;
-    mudaCor(1);
-    printf("\n\n\n\t\t\t\t\t _           _     _      _       _        \n"
-                   "\t\t\t\t\t| |         | |   (_)    (_)     | |       \n"
-                   "\t\t\t\t\t| |     __ _| |__  _ _ __ _ _ __ | |_ ___  \n"
-                   "\t\t\t\t\t| |    / _` | '_ \| | '__| | '_ \| __/ _ \ \n"
-                   "\t\t\t\t\t| |___| (_| | |_) | | |  | | | | | || (_) |\n"
-                   "\t\t\t\t\t|______\__,_|_.__/|_|_|  |_|_| |_|\__\___/ \n\n\n\n\n");
-
-
-    mudaCor(4);
+    DesenharLogo();
     printf("\t\t\t\t\t\t MENU DE OPCOES\n\n");
     printf("\t\t\t\t\t\t1 - Iniciar jogo\n");
     printf("\t\t\t\t\t\t2 - Exibir recoords\n");
@@ -136,7 +131,8 @@ void menuInicial () {
             break;
         }
         case 50: {
-            break;
+            LerRecordes();
+            exit(0);
         }
         case 51: {
             exit(0);
@@ -152,6 +148,7 @@ void menuInicial () {
 
 int existeNoMapa(int testeX, int testeY) {
 
+    // Verifca se colidimos com o objetivo no mapa
     if(testeX == posXY[objetivoRandom][0] && testeY == posXY[objetivoRandom][1]) {
         pontuacao++;
         nivel+=50;
@@ -159,12 +156,16 @@ int existeNoMapa(int testeX, int testeY) {
         return 1;
     }
 
-    for (int i = 0; i < nivel; ++i) {
+    // Verificamos se colidimos com uma parede.
+    for (int i = 0; i < (nivel+120); ++i) {
 
         if(testeX == posXY[i][0])
-            for (int j = 0; j < nivel; ++j) {
+            for (int j = 0; j < (nivel+120); ++j) {
                 if(testeY == posXY[i][1]){
                     system("cls");
+                    nivel = 0;
+                    if(pontuacao > 0)
+                    Recorde();
                     menuFinal();
                     return 0;
                 }
@@ -176,12 +177,12 @@ int existeNoMapa(int testeX, int testeY) {
 }
 
 
+// Movimentos nossa posição no mapa
 void moveChar() {
 
     int numMovimento = 0;
 
     while (existeNoMapa(x,y) == 2) {
-
         switch (numMovimento = getch()) {
 
             case TECLA_CIMA:
@@ -233,33 +234,34 @@ void moveChar() {
 
 void geraMapa() {
 
-    if(nivel == 120)
-    posXY = (int**) malloc(nivel*sizeof(int));
-    else
-    posXY = (int**) realloc(posXY,nivel*sizeof(int));
+    if(nivel != 0)
+    posXY = (int**) realloc(posXY,(nivel+120)*sizeof(int)); // Gera mapa proximo nível
 
 
+    //Gera parede completa encima
     for (int l = 0; l < 120; ++l) {
 
         movePOS(l,26,3);
     }
 
+    //Gera parede completa embaixo
     for (int l = 0; l < 120; ++l) {
 
         movePOS(l,0,3);
     }
 
-    movePOS(50,27,0);
-    printf("Pontuacao: %d", pontuacao);
-    objetivoRandom = rand() % nivel;
+    movePOS(50,27,0); // Se move abaixo do lugar do jogo
+    printf("Pontuacao: %d", pontuacao); // Escreve a pontuação na tela
 
-    for (int i = 0; i < nivel; ++i) {
+    objetivoRandom = rand() % (nivel+120); //Gera objetivo em um lugar aleatório no mapa
+
+    for (int i = 0; i < (nivel+120); ++i) {
         posXY[i] = (int*) malloc(1*sizeof(int)); // Criando uma nova matriz
 
         for (int j = 0; j < 2; ++j) {
 
             if(j==0) {
-                posXY[i][j] = rand() % nivel;
+                posXY[i][j] = rand() % 120;
             }
             else if(j==1) {
                 posXY[i][j] = rand() %  25;
@@ -267,9 +269,10 @@ void geraMapa() {
         }
     }
 
-    for (int k = 0; k < nivel; ++k) {
+    //Desenha o mapa / Objetivo na tela
+    for (int k = 0; k < (nivel+120); ++k) {
 
-        if(k== objetivoRandom)
+        if(k == objetivoRandom)
             movePOS(posXY[k][0],posXY[k][1],2);
         else
             movePOS(posXY[k][0],posXY[k][1],3);
@@ -300,32 +303,106 @@ void menuFinal() {
 
     switch (opcaoSelecionada = getch()){
         case 49:
-            IniciaNovoJogo();
+            pontuacao = 0; // Zera a pontuação
+            IniciaNovoJogo(); // Inicia um novo jogo
             break;
         case 50:
-            // Chama função de recodes
+            printf("Versão Alpha. Ainda não está disponível\n\n");
             break;
         case 51:
             exit(0);
-            break;
         default:
             break;
     }
 
 }
 
+void LerRecordes() {
+
+    system("cls");
+    DesenharLogo();
+
+    mudaCor(1);
+    movePOS(50,15,0);
+    printf("@_________ RECORDES _________@\n");
+    movePOS(45,18,0);
+    printf("NOME\t\t\tPONTUACAO\n");
+    mudaCor(4);
+
+    f = fopen("C:\\temp\\recordes.txt","r");
+    if(f== NULL) {
+        printf("ERRO arquivo");
+        Sleep(5000);
+        exit(0);
+    }else {
+
+        char c = fgetc(f);
+
+        while(c != EOF){
+            if(c == ':'){
+                printf("\n");
+                c = fgetc(f);
+            }
+            else
+                printf("%c", c);
+            c = fgetc(f);
+        }
+
+        fclose(f);
+        system("Pause");
+    }
+    
+}
+
 void Recorde() {
 
-    // Versão Alpha.
+    f = fopen("C:\\temp\\recordes.txt","a+");
+    if(f == NULL){
+        printf("Error arquivo");
+    Sleep(3000);
+    exit(0);
+    }
+    else {
+        char c = pontuacao+'0';
 
+        fputs(nomeJogador,f);
+
+        fputs(",",f);
+
+        fputc(c,f);
+
+        fputs(":",f);
+
+        fclose(f);
+    }
+}
+
+void DesenharLogo() {
+
+    mudaCor(1);
+    printf("\n\n\n\t\t\t\t\t _           _     _      _       _        \n"
+                   "\t\t\t\t\t| |         | |   (_)    (_)     | |       \n"
+                   "\t\t\t\t\t| |     __ _| |__  _ _ __ _ _ __ | |_ ___  \n"
+                   "\t\t\t\t\t| |    / _` | '_ \| | '__| | '_ \| __/ _ \ \n"
+                   "\t\t\t\t\t| |___| (_| | |_) | | |  | | | | | || (_) |\n"
+                   "\t\t\t\t\t|______\__,_|_.__/|_|_|  |_|_| |_|\__\___/ \n\n\n\n\n");
+
+    mudaCor(4);
+}
+
+void requisitaNomeJogador() {
+
+    DesenharLogo();
+    printf("Seu nome: ");
+    gets(nomeJogador);
+    system("cls");
 }
 
 int main() {
-    srand(time(NULL));
-    //tamanhoTotalDaTela();
-    menuInicial();
 
-    system("pause");
+    requisitaNomeJogador();
+    srand(time(NULL)); // Faz com que todos os valores Aleatórios possuam um valor unico.
+    menuInicial(); // Inicia o Labirinto.
 }
 
 
