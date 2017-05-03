@@ -323,40 +323,40 @@ void LerRecordes() {
     DesenharLogo();
 
     mudaCor(1);
-    movePOS(50,15,0);
-    printf("@_________ RECORDES _________@\n");
-    movePOS(45,18,0);
-    printf("NOME\t\t\tPONTUACAO\n");
+    movePOS(45,15,0);
+    printf("#_________ RECORDES _________#\n");
+    printf("NOME\tPONTUACAO\n");
     mudaCor(4);
 
-    f = fopen("C:\\temp\\recordes.txt","r");
+    f = fopen("recordes.txt","r");
     if(f== NULL) {
         printf("ERRO arquivo");
         Sleep(5000);
         exit(0);
     }else {
-
-        char c = fgetc(f);
+        char c =0;
 
         while(c != EOF){
             if(c == ':'){
                 printf("\n");
-                c = fgetc(f);
             }
             else
                 printf("%c", c);
-            c = fgetc(f);
+                c = fgetc(f);
         }
 
         fclose(f);
+        printf("\n\n\n\n\n");
         system("Pause");
+        system("cls");
+        menuInicial();
     }
     
 }
 
 void Recorde() {
 
-    f = fopen("C:\\temp\\recordes.txt","a+");
+    f = fopen("recordes.txt","a+");
     if(f == NULL){
         printf("Error arquivo");
     Sleep(3000);
@@ -395,6 +395,7 @@ void requisitaNomeJogador() {
     DesenharLogo();
     printf("Seu nome: ");
     gets(nomeJogador);
+    fflush(stdin);
     system("cls");
 }
 
